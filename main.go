@@ -44,3 +44,7 @@ func dashboardHandler(w http.ResponseWriter, r *http.Request) {
 func basicHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Hello, world!"))
 }
+
+func minorChanges() {
+
+}
