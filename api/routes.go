@@ -1,4 +1,4 @@
-package application
+package api
 
 import (
 	"github.com/go-chi/chi/v5"
@@ -18,6 +18,7 @@ func loadRoutes() *chi.Mux {
 
 	router.Get("/dashboard", handler.DashboardHandler)
 	router.Get("/stocks", handler.StockHandler)
+	//router.Get("/alpha", handler.AlphaVantageHandler)
 
 	router.Route("/orders", loadOrderRoutes)
 	return router

@@ -1,15 +1,15 @@
 package handler
 
 import (
+	"encoding/json"
 	"fmt"
+	"github.com/pindarEng/stockSimulator/models"
 	"html/template"
+	"io/ioutil"
+	"log"
 	"net/http"
 )
 
-type Stock struct {
-	Symbol string
-	Price  float64
-}
 type Order struct{}
 
 func (o *Order) Create(w http.ResponseWriter, r *http.Request) {
@@ -44,23 +44,45 @@ func DashboardHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+type TimeSeries struct {
+	MetaData   map[string]string            `json:"Meta Data"`
+	TimeSeries map[string]map[string]string `json:"Time Series (5min)"`
+}
+
 func StockHandler(w http.ResponseWriter, r *http.Request) {
 	//TODO implement api
-	stocks := []Stock{
-		{"AAPL", 130.21},
-		{"GOOGL", 2512.56},
+	apiKey := "4P88T5KPRHW21GAI"
+	symbol := "IBM"
+	res, err := http.Get("https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=" + symbol + "&interval=5min&apikey=" + apiKey)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer res.Body.Close()
+
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	tmpl, err := template.ParseFiles("templates/stocks.html")
+	var stocks models.Stock
+	err = json.Unmarshal(body, &stocks)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		log.Fatal(err)
 	}
+	log.Printf("stocks: %+v", stocks)
+	//now := time.Now()
+	//fmt.Println(now.Format("2006-01-02"))
+	latestTimeStamp := stocks.MetaData.LastRefreshed
+	latestData, ok := stocks.TimeSeries[latestTimeStamp]
+	if !ok {
+		log.Fatalf("no data available:%s", latestTimeStamp)
+	}
+	fmt.Println("Symbol:", stocks.MetaData.Symbol)
+	fmt.Println("Timestamp:", latestTimeStamp)
+	fmt.Println("Open:", latestData.Open)
+	fmt.Println("High:", latestData.High)
+	fmt.Println("Low:", latestData.Low)
+	fmt.Println("Close:", latestData.Close)
+	fmt.Println("Volume:", latestData.Volume)
 
-	// Execute the template, passing any necessary data (nil in this case)
-	err = tmpl.Execute(w, stocks)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
 }
