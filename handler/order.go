@@ -77,6 +77,7 @@ func StockHandler(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		log.Fatalf("no data available:%s", latestTimeStamp)
 	}
+
 	fmt.Println("Symbol:", stocks.MetaData.Symbol)
 	fmt.Println("Timestamp:", latestTimeStamp)
 	fmt.Println("Open:", latestData.Open)
