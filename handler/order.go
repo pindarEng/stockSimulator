@@ -70,8 +70,7 @@ func StockHandler(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 	log.Printf("stocks: %+v", stocks)
-	//now := time.Now()
-	//fmt.Println(now.Format("2006-01-02"))
+
 	latestTimeStamp := stocks.MetaData.LastRefreshed
 	latestData, ok := stocks.TimeSeries[latestTimeStamp]
 	if !ok {
